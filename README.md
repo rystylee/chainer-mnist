@@ -1,2 +1,2 @@
 # chainer-mnist
-a simple chainer example of mnist. The version of chainer is 2.0.2.
+a simple chainer example. The version of chainer is 2.0.2.
