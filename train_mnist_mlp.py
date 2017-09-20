@@ -25,7 +25,7 @@ class MLP(chainer.Chain):
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Chainer example: MNIST')
+    parser = argparse.ArgumentParser(description='Chainer: MNIST training MLP')
     parser.add_argument('--batchsize', '-b', type=int, default=100,
                         help='Number of images in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=20,
@@ -68,6 +68,7 @@ def main():
     trainer.extend(extensions.dump_graph('main/loss'))
     frequency = args.epoch if args.frequency == -1 else max(1, args.frequency)
     trainer.extend(extensions.snapshot(), trigger=(frequency, 'epoch'))
+    trainer.extend(extensions.snapshot_object(model, filename='model_epoch-{.updater.epoch}.npz'))
     trainer.extend(extensions.LogReport())
 
     if extensions.PlotReport.available():

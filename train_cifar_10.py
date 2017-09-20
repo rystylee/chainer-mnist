@@ -25,7 +25,7 @@ class CNN(chainer.Chain):
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Chainer example: MNIST')
+    parser = argparse.ArgumentParser(description='Chainer: CIFAR-10 training CNN')
     parser.add_argument('--batchsize', '-b', type=int, default=100,
                         help='Number of images in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=20,
@@ -34,7 +34,7 @@ def main():
                         help='Frequency of taking a snapshot')
     parser.add_argument('--gpu', '-g', type=int, default=0,
                         help='GPU ID (negative value indicates CPU)')
-    parser.add_argument('--out', '-o', default='result_cifar-10',
+    parser.add_argument('--out', '-o', default='result_cifar_10',
                         help='Directory to output the result')
     parser.add_argument('--resume', '-r', default='',
                         help='Resume the training from snapshot')
@@ -68,6 +68,7 @@ def main():
     trainer.extend(extensions.dump_graph('main/loss'))
     frequency = args.epoch if args.frequency == -1 else max(1, args.frequency)
     trainer.extend(extensions.snapshot(), trigger=(frequency, 'epoch'))
+    trainer.extend(extensions.snapshot_object(model, filename='model_epoch-{.updater.epoch}.npz'))
     trainer.extend(extensions.LogReport())
 
     if extensions.PlotReport.available():
