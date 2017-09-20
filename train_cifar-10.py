@@ -1,3 +1,5 @@
+import argparse
+
 import chainer
 import chainer.functions as F
 import chainer.links as L
@@ -23,23 +25,32 @@ class CNN(chainer.Chain):
 
 def main():
 
-    batchsize = 100
-    epoch = 20
-    frequency = -1
-    gpu = 0
-    out = 'result_cifar-10'
-    resume = ''
-    unit = 1000
+    parser = argparse.ArgumentParser(description='Chainer example: MNIST')
+    parser.add_argument('--batchsize', '-b', type=int, default=100,
+                        help='Number of images in each mini-batch')
+    parser.add_argument('--epoch', '-e', type=int, default=20,
+                        help='Number of sweeps over the dataset to train')
+    parser.add_argument('--frequency', '-f', type=int, default=-1,
+                        help='Frequency of taking a snapshot')
+    parser.add_argument('--gpu', '-g', type=int, default=0,
+                        help='GPU ID (negative value indicates CPU)')
+    parser.add_argument('--out', '-o', default='result_cifar-10',
+                        help='Directory to output the result')
+    parser.add_argument('--resume', '-r', default='',
+                        help='Resume the training from snapshot')
+    parser.add_argument('--unit', '-u', type=int, default=1000,
+                        help='Number of units')
+    args = parser.parse_args()
 
-    print('GPU: {}'.format(gpu))
-    print('# unit: {}'.format(unit))
-    print('# Minibatch-size: {}'.format(batchsize))
-    print('# epoch: {}'.format(epoch))
+    print('GPU: {}'.format(args.gpu))
+    print('# unit: {}'.format(args.unit))
+    print('# Minibatch-size: {}'.format(args.batchsize))
+    print('# epoch: {}'.format(args.epoch))
     print('')
 
     model = L.Classifier(CNN())
-    if gpu >= 0:
-        chainer.cuda.get_device_from_id(gpu).use()
+    if args.gpu >= 0:
+        chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
 
     optimizer = chainer.optimizers.Adam()
@@ -47,15 +58,15 @@ def main():
 
     train, test = chainer.datasets.get_cifar10(withlabel=True, scale=1.) # (3, 32, 32)
 
-    train_iter = chainer.iterators.SerialIterator(train, batchsize, repeat=True, shuffle=True)
-    test_iter = chainer.iterators.SerialIterator(test, batchsize, repeat=False, shuffle=False)
+    train_iter = chainer.iterators.SerialIterator(train, args.batchsize, repeat=True, shuffle=True)
+    test_iter = chainer.iterators.SerialIterator(test, args.batchsize, repeat=False, shuffle=False)
 
-    updater = training.StandardUpdater(train_iter, optimizer, device=gpu)
-    trainer = training.Trainer(updater, (epoch, 'epoch'), out=out)
+    updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
+    trainer = training.Trainer(updater, (args.epoch, 'epoch'), out=args.out)
 
-    trainer.extend(extensions.Evaluator(test_iter, model, device=gpu))
+    trainer.extend(extensions.Evaluator(test_iter, model, device=args.gpu))
     trainer.extend(extensions.dump_graph('main/loss'))
-    frequency = epoch if frequency == -1 else max(1, frequency)
+    frequency = args.epoch if args.frequency == -1 else max(1, args.frequency)
     trainer.extend(extensions.snapshot(), trigger=(frequency, 'epoch'))
     trainer.extend(extensions.LogReport())
 
@@ -66,8 +77,8 @@ def main():
     trainer.extend(extensions.PrintReport(['epoch', 'main/loss', 'validation/main/loss', 'main/accuracy', 'validation/main/accuracy', 'elapsed_time']))
     trainer.extend(extensions.ProgressBar())
 
-    if resume:
-        chainer.serializers.load_npz(resume, trainer)
+    if args.resume:
+        chainer.serializers.load_npz(args.resume, trainer)
 
     trainer.run()
 
