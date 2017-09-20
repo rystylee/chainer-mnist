@@ -2,7 +2,7 @@ import argparse
 
 import chainer
 import chainer.links as L
-from train_mnist_cnn import CNN
+from trainer.train_mnist_cnn import CNN
 
 import matplotlib.pyplot as plt
 

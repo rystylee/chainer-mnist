@@ -2,7 +2,7 @@ import argparse
 
 import chainer
 import chainer.links as L
-from train_mnist_mlp import MLP
+from trainer.train_mnist_mlp import MLP
 
 import matplotlib.pyplot as plt
 

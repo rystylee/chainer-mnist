@@ -2,7 +2,7 @@ import argparse
 
 import chainer
 import chainer.links as L
-from train_cifar_10 import CNN
+from trainer.train_cifar_10 import CNN
 
 import matplotlib.pyplot as plt
 
